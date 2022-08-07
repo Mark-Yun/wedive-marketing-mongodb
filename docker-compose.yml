@@ -8,8 +8,8 @@ services:
       - "27017:27017"
     volumes: 
       - /data/db:/data/db
-    env_file:
-      - wedive-secret/mongo-config.env
+    environment: 
+      - MONGO_INITDB_DATABASE=marketing
     restart: always
     networks:
       - mongodb-network
@@ -20,18 +20,18 @@ services:
       retries: 3
     command: mongod
 
-  backup-agent:
-    container_name: backup-agent
-    image: tiredofit/db-backup
-    depends_on:
-      - mongodb
-    env_file: 
-      - wedive-secret/db-backup-config.env
-    volumes:
-      - /data/backups:/backup
-    restart: always
-    networks:
-      - mongodb-network
+  # backup-agent:
+  #   container_name: backup-agent
+  #   image: tiredofit/db-backup
+  #   depends_on:
+  #     - mongodb
+  #   env_file: 
+  #     - wedive-secret/db-backup-config.env
+  #   volumes:
+  #     - /data/backups:/backup
+  #   restart: always
+  #   networks:
+  #     - mongodb-network
 
 networks:
   mongodb-network:
