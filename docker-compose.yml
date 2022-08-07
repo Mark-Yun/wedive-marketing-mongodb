@@ -1,0 +1,39 @@
+version: '3.8'
+services: 
+  marketing-mongodb:
+    platform: linux/x86_64
+    image: percona/percona-server-mongodb:latest
+    container_name: marketing-mongodb
+    ports:
+      - "27017:27017"
+    volumes: 
+      - /data/db:/data/db
+    env_file:
+      - wedive-secret/mongo-config.env
+    restart: always
+    networks:
+      - mongodb-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 1s
+      timeout: 10s
+      retries: 3
+    command: mongod
+
+  backup-agent:
+    container_name: backup-agent
+    image: tiredofit/db-backup
+    depends_on:
+      - mongodb
+    env_file: 
+      - wedive-secret/db-backup-config.env
+    volumes:
+      - /data/backups:/backup
+    restart: always
+    networks:
+      - mongodb-network
+
+networks:
+  mongodb-network:
+    driver: bridge
+    name: mongodb-network
